@@ -52,8 +52,8 @@ const login = async (
       return res.status(400).json({ message: "Please fill in all fields" });
     }
 
-    const { token, userId } = await authService.loginUser(email, password);
-    return res.status(200).json({ message: "Login successful", token, userId });
+    const { token } = await authService.loginUser(email, password);
+    return res.status(200).json({ message: "Login successful", token });
   } catch (error) {
     next(error);
   }
@@ -98,5 +98,5 @@ const profile = async (
   }
 };
 
-const authController =  { register, login, profile };
+const authController = { register, login, profile };
 export default authController;
