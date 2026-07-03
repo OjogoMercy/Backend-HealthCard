@@ -26,12 +26,12 @@ const registerUser = async (
 const loginUser = async (email: string, password: string) => {
   const foundUser = await prisma.user.findUnique({ where: { email } });
   if (!foundUser) {
-    throw new AppError("Invalid email or password", 401);
+    throw new AppError("User not found", 401);
   }
 
   const match = await argon.verify(foundUser.password, password);
   if (!match) {
-    throw new AppError("invalid email or password", 401);
+    throw new AppError("Invalid password", 401);
   }
 
   const token = jwt.sign(
