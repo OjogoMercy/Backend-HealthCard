@@ -7,6 +7,21 @@ const createChild = async (
   gender: string,
   userId: string,
 ) => {
+  const existing = await prisma.child.findFirst({
+    where: {
+      userId,
+      name: { equals: name, mode: "insensitive" },
+      dateOfBirth,
+    },
+  });
+
+  if (existing) {
+    throw new AppError(
+      "A child with this name and date of birth already exists",
+      409,
+    );
+  }
+
   const newChild = await prisma.child.create({
     data: {
       name,
@@ -15,6 +30,7 @@ const createChild = async (
       userId,
     },
   });
+
   return newChild;
 };
 const getChildrenByUserId = async (userId: string) => {
