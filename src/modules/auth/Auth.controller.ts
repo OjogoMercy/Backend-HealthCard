@@ -30,7 +30,12 @@ const login = async (
       (): any;
       new (): any;
       json: {
-        (arg0: { message: string; token?: any; userId?: string }): any;
+        (arg0: {
+          message: string;
+          token?: any;
+          userId?: string;
+          userName: string;
+        }): any;
         new (): any;
       };
     };
@@ -43,8 +48,13 @@ const login = async (
       return res.status(400).json({ message: "Please fill in all fields" });
     }
 
-    const { token, userId } = await authService.loginUser(email, password);
-    return res.status(200).json({ message: "Login successful", token, userId });
+    const { token, userId, userName } = await authService.loginUser(
+      email,
+      password,
+    );
+    return res
+      .status(200)
+      .json({ message: "Login successful", token, userId, userName });
   } catch (error) {
     next(error);
   }

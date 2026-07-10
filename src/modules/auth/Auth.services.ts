@@ -40,7 +40,7 @@ const loginUser = async (email: string, password: string) => {
     { expiresIn: "1d" },
   );
 
-  return { token, userId: foundUser.id };
+  return { token, userId: foundUser.id, userName: foundUser.userName };
 };
 
 const getUserProfile = async (userId: string) => {
