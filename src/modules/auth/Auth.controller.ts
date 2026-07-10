@@ -34,7 +34,7 @@ const login = async (
           message: string;
           token?: any;
           userId?: string;
-          userName: string;
+          userName?: string;
         }): any;
         new (): any;
       };
@@ -45,7 +45,9 @@ const login = async (
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json({ message: "Please fill in all fields" });
+      return res.status(400).json({
+        message: "Please fill in all fields",
+      });
     }
 
     const { token, userId, userName } = await authService.loginUser(
