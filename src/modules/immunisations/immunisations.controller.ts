@@ -1,4 +1,4 @@
-import { Response, NextFunction, Request } from "express";
+import { NextFunction, Request, Response } from "express";
 import type { AuthenticatedRequest } from "../../types/express";
 import immunisationService from "./immunisations.services";
 
@@ -12,19 +12,19 @@ const createImmunisation = async (
     const userId = authReq.user?.userId;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-    const { vaccineId, administeredDate, childId } = authReq.body;
+    const { vaccineId, dueDate, childId } = authReq.body;
 
-    if (!vaccineId || !administeredDate || !childId) {
+    if (!vaccineId || !dueDate || !childId) {
       return res.status(400).json({ message: "Please fill in all fields" });
     }
 
-    if (isNaN(new Date(administeredDate).getTime())) {
+    if (isNaN(new Date(dueDate).getTime())) {
       return res.status(400).json({ message: "Invalid date format" });
     }
 
     const immunisation = await immunisationService.createImmunisation(
       vaccineId,
-      new Date(administeredDate),
+      new Date(dueDate),
       childId,
       userId,
     );
