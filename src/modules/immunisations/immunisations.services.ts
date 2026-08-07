@@ -36,6 +36,11 @@ const getImmunisationsByChild = async (childId: string, userId: string) => {
     (error as any).statusCode = 403;
     throw Error;
   }
+
+  return await prisma.immunisation.findMany({
+    where: { childId },
+    orderBy: { dueDate: "asc" },
+  });
 };
 const updateImmunisation = async (
   immunisationId: string,

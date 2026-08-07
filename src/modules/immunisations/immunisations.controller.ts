@@ -14,8 +14,15 @@ const createImmunisation = async (
 
     const { vaccineId, dueDate, childId } = authReq.body;
 
-    if (!vaccineId || !dueDate || !childId) {
-      return res.status(400).json({ message: "Please fill in all fields" });
+    // if (!vaccineId || !dueDate || !childId) {
+    //   return res.status(400).json({ message: "Please fill in all fields" });
+    // }
+    if (!dueDate) {
+      return res.status(400).json({ message: "Due date is required" });
+    } else if (!childId) {
+      return res.status(400).json({ message: "Child ID is required" });
+    } else if (!vaccineId) {
+      return res.status(400).json({ message: "Vaccine ID is required" });
     }
 
     if (isNaN(new Date(dueDate).getTime())) {
