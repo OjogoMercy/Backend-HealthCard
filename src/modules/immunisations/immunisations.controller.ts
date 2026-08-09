@@ -13,10 +13,6 @@ const createImmunisation = async (
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
     const { vaccineId, dueDate, childId } = authReq.body;
-
-    // if (!vaccineId || !dueDate || !childId) {
-    //   return res.status(400).json({ message: "Please fill in all fields" });
-    // }
     if (!dueDate) {
       return res.status(400).json({ message: "Due date is required" });
     } else if (!childId) {

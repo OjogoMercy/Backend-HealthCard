@@ -21,7 +21,7 @@ const createImmunisation = async (
       vaccineId,
       dueDate,
       childId,
-      administered: false,
+      administered: true
     },
   });
 };
