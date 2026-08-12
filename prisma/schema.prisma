@@ -4,8 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-
-
 }
 
 model User {
@@ -13,7 +11,7 @@ model User {
   email    String  @unique
   userName String
   password String
-  children Child[] 
+  children Child[]
 }
 
 model Child {
@@ -29,7 +27,7 @@ model Child {
 
 model Immunisation {
   id           String   @id @default(uuid())
-  vaccineId  String
+  vaccineId    String
   dueDate      DateTime
   administered Boolean  @default(false)
   child        Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
@@ -43,4 +41,22 @@ model GrowthRecord {
   date    DateTime
   child   Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
   childId String
+}
+
+model Otp {
+  id       String  @id @default(uuid())
+  userId   String
+  codeHash String
+  type     OtpType
+  email    String
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([email, type])
+}
+
+enum OtpType {
+  REGISTRATION
+  RESET_PASSWORD
 }
