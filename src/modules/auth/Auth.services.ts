@@ -3,7 +3,8 @@ import argon from "argon2";
 import { prisma } from "../../../prismaClient";
 import { AppError } from "../../utils/AppError";
 import crypto from "crypto";
-import  {OtpType} from "@prisma/client";
+import { OtpType } from "@prisma/client";
+import { sendOtpEmail } from "../../services/Mail.Service";
 
 const registerUser = async (
   userName: string,
@@ -63,24 +64,21 @@ const getUserProfile = async (userId: string) => {
   return userProfile;
 };
 
-
-  const generateNumericOtp = (length: number = 6): string => {
+const generateNumericOtp = (length: number = 6): string => {
   const min = Math.pow(10, length - 1);
   const max = Math.pow(10, length) - 1;
   return crypto.randomInt(min, max + 1).toString();
 };
 const EXP_MINS = 10;
 
-const SendOtp = async (email: string, type: OtpType,) => {
-
+const SendOtp = async (email: string, type: OtpType) => {
   const existingOtp = await prisma.otp.findFirst({
     where: {
       email,
       type,
-      expiresAt :{gt: new Date()},
+      expiresAt: { gt: new Date() },
     },
   });
-
 
   if (existingOtp) {
     const secondsRemaining = Math.ceil(
@@ -103,33 +101,39 @@ const SendOtp = async (email: string, type: OtpType,) => {
     timeCost: 4,
     memoryCost: 19456,
   });
+  sendOtpEmail(email, plainTextOtp);
 
   const expiresAt = new Date(Date.now() + EXP_MINS * 60 * 1000);
   await prisma.otp.create({
-   data:{email,type,codeHash:hashedCode,expiresAt}
-
-  })
-  console.log(hashedCode)
+    data: { email, type, codeHash: hashedCode, expiresAt },
+  });
+  console.log(hashedCode);
 };
-const VerifyOtp = async (email:string, type:OtpType,code :string)=>{
+const VerifyOtp = async (email: string, type: OtpType, code: string) => {
   const OtpRecord = await prisma.otp.findFirst({
-    where:{
-      email, 
+    where: {
+      email,
       type,
-      expiresAt:{gt : new Date()}
-    }
-  })
-  if(!OtpRecord){
-    throw new AppError("Otp has expired or dosent exist ", 404)
+      expiresAt: { gt: new Date() },
+    },
+  });
+  if (!OtpRecord) {
+    throw new AppError("Otp has expired or dosent exist ", 404);
   }
 
-  const isValid = await argon.verify( OtpRecord.codeHash,code)
-  if(!isValid){
-    throw new AppError("OTP is not valid",400)
+  const isValid = await argon.verify(OtpRecord.codeHash, code);
+  if (!isValid) {
+    throw new AppError("OTP is not valid", 400);
   }
   await prisma.otp.delete({
     where: { id: OtpRecord.id },
   });
-}
-const authService = { registerUser, loginUser, getUserProfile, SendOtp,VerifyOtp };
+};
+const authService = {
+  registerUser,
+  loginUser,
+  getUserProfile,
+  SendOtp,
+  VerifyOtp,
+};
 export default authService;
