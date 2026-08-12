@@ -3,7 +3,7 @@ import argon from "argon2";
 import { prisma } from "../../../prismaClient";
 import { AppError } from "../../utils/AppError";
 import crypto from "crypto";
-import OtpType from "@prisma/client";
+import  {OtpType} from "@prisma/client";
 
 const registerUser = async (
   userName: string,
@@ -71,7 +71,7 @@ const getUserProfile = async (userId: string) => {
 };
 const EXP_MINS = 10;
 
-const SendOtp = async (email: string, type: OtpType) => {
+const SendOtp = async (email: string, type: OtpType,) => {
 
   const existingOtp = await prisma.otp.findFirst({
     where: {
@@ -122,7 +122,7 @@ const VerifyOtp = async (email:string, type:OtpType,code :string)=>{
     throw new AppError("Otp has expired or dosent exist ", 404)
   }
 
-  const isValid = await argon.verify(code, OtpRecord.code)
+  const isValid = await argon.verify(code, OtpRecord.codeHash)
   if(!isValid){
     throw new AppError("OTP is not valid",400)
   }

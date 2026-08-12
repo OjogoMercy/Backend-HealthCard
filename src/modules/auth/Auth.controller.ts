@@ -25,7 +25,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
     const { token, userId, userName } = await authService.loginUser(
       email,
-      password
+      password,
     );
 
     return res
@@ -36,7 +36,11 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const profile = async (req: Request & { user?: { userId: string } }, res: Response, next: NextFunction) => {
+const profile = async (
+  req: Request & { user?: { userId: string } },
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     if (!req.user?.userId) {
       return res.status(401).json({ message: "Unauthorized access" });
@@ -52,14 +56,17 @@ const profile = async (req: Request & { user?: { userId: string } }, res: Respon
   }
 };
 
-const requestOtpHandler = async (req: Request, res: Response, next: NextFunction) => {
+const requestOtpHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { email, type } = req.body;
 
     if (!email || !type) {
       return res.status(400).json({ message: "Email and type are required." });
     }
-
     if (!Object.values(OtpType).includes(type)) {
       return res.status(400).json({ message: "Invalid OTP type provided." });
     }
@@ -75,7 +82,11 @@ const requestOtpHandler = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-const verifyOtpHandler = async (req: Request, res: Response, next: NextFunction) => {
+const verifyOtpHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { email, code, type } = req.body;
 
@@ -85,7 +96,6 @@ const verifyOtpHandler = async (req: Request, res: Response, next: NextFunction)
       });
     }
 
-    // FIXED: Corrected parameter order (email, type, code)
     await authService.VerifyOtp(email, type as OtpType, code);
 
     return res.status(200).json({
