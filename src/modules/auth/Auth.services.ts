@@ -4,8 +4,7 @@ import { prisma } from "../../../prismaClient";
 import { AppError } from "../../utils/AppError";
 import crypto from "crypto";
 import { OtpType } from "@prisma/client";
-import { sendOtpEmail } from "../../services/Mail.Service";
-
+import { sendOtpEmail } from "../../services/MailService";
 const registerUser = async (
   userName: string,
   email: string,
