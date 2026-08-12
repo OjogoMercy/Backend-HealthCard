@@ -106,7 +106,7 @@ const SendOtp = async (email: string, type: OtpType,) => {
 
   const expiresAt = new Date(Date.now() + EXP_MINS * 60 * 1000);
   await prisma.otp.create({
-   data:{email,type,code:hashedCode,expiresAt}
+   data:{email,type,codeHash:hashedCode,expiresAt}
 
   })
 };

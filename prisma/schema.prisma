@@ -45,7 +45,7 @@ model GrowthRecord {
 
 model Otp {
   id       String  @id @default(uuid())
-  userId   String
+  userId   String?
   codeHash String
   type     OtpType
   email    String
