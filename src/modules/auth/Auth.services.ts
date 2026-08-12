@@ -109,6 +109,7 @@ const SendOtp = async (email: string, type: OtpType,) => {
    data:{email,type,codeHash:hashedCode,expiresAt}
 
   })
+  console.log(hashedCode)
 };
 const VerifyOtp = async (email:string, type:OtpType,code :string)=>{
   const OtpRecord = await prisma.otp.findFirst({
@@ -122,7 +123,7 @@ const VerifyOtp = async (email:string, type:OtpType,code :string)=>{
     throw new AppError("Otp has expired or dosent exist ", 404)
   }
 
-  const isValid = await argon.verify(code, OtpRecord.codeHash)
+  const isValid = await argon.verify( OtpRecord.codeHash,code)
   if(!isValid){
     throw new AppError("OTP is not valid",400)
   }
