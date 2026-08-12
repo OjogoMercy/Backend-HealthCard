@@ -2,6 +2,8 @@ import jwt from "jsonwebtoken";
 import argon from "argon2";
 import { prisma } from "../../../prismaClient";
 import { AppError } from "../../utils/AppError";
+import crypto from "crypto";
+import OtpType from "@prisma/client";
 
 const registerUser = async (
   userName: string,
@@ -61,5 +63,72 @@ const getUserProfile = async (userId: string) => {
   return userProfile;
 };
 
-const authService = { registerUser, loginUser, getUserProfile };
+
+  const generateNumericOtp = (length: number = 6): string => {
+  const min = Math.pow(10, length - 1);
+  const max = Math.pow(10, length) - 1;
+  return crypto.randomInt(min, max + 1).toString();
+};
+const EXP_MINS = 10;
+
+const SendOtp = async (email: string, type: OtpType) => {
+
+  const existingOtp = await prisma.otp.findFirst({
+    where: {
+      email,
+      type,
+      expiresAt :{gt: new Date()},
+    },
+  });
+
+
+  if (existingOtp) {
+    const secondsRemaining = Math.ceil(
+      (existingOtp.expiresAt.getTime() - Date.now()) / 1000,
+    );
+    if (secondsRemaining > (EXP_MINS - 1) * 60) {
+      throw new AppError(
+        "Please wait 60 seconds before requesting another code.",
+        429,
+      );
+    }
+  }
+
+  await prisma.otp.deleteMany({
+    where: { email, type },
+  });
+  const plainTextOtp = generateNumericOtp(6);
+  const hashedCode = await argon.hash(plainTextOtp, {
+    type: argon.argon2id,
+    timeCost: 4,
+    memoryCost: 19456,
+  });
+
+  const expiresAt = new Date(Date.now() + EXP_MINS * 60 * 1000);
+  await prisma.otp.create({
+   data:{email,type,code:hashedCode,expiresAt}
+
+  })
+};
+const VerifyOtp = async (email:string, type:OtpType,code :string)=>{
+  const OtpRecord = await prisma.otp.findFirst({
+    where:{
+      email, 
+      type,
+      expiresAt:{gt : new Date()}
+    }
+  })
+  if(!OtpRecord){
+    throw new AppError("Otp has expired or dosent exist ", 404)
+  }
+
+  const isValid = await argon.verify(code, OtpRecord.code)
+  if(!isValid){
+    throw new AppError("OTP is not valid",400)
+  }
+  await prisma.otp.delete({
+    where: { id: OtpRecord.id },
+  });
+}
+const authService = { registerUser, loginUser, getUserProfile, SendOtp,VerifyOtp };
 export default authService;
