@@ -5,6 +5,7 @@ import { AppError } from "../../utils/AppError";
 import crypto from "crypto";
 import { OtpType } from "@prisma/client";
 import { sendOtpEmail } from "../../services/MailService";
+
 const registerUser = async (
   userName: string,
   email: string,
@@ -106,7 +107,6 @@ const SendOtp = async (email: string, type: OtpType) => {
   await prisma.otp.create({
     data: { email, type, codeHash: hashedCode, expiresAt },
   });
-  console.log(hashedCode);
 };
 const VerifyOtp = async (email: string, type: OtpType, code: string) => {
   const OtpRecord = await prisma.otp.findFirst({
