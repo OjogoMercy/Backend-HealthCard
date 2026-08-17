@@ -32,6 +32,7 @@ model Immunisation {
   administered Boolean  @default(false)
   child        Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
   childId      String
+  @@unique([childId, vaccineId])
 }
 
 model GrowthRecord {

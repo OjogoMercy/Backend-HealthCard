@@ -10,18 +10,29 @@ const createImmunisation = async (
     where: { id: childId, userId },
   });
 
+
   if (!child) {
     const error = new Error("Access denied");
     (error as any).statusCode = 403;
     throw error;
   }
+  const existing = await prisma.immunisation.findFirst({
+    where: { childId, vaccineId },
+  });
+
+  if (existing) {
+    const error = new Error("Immunisation already recorded");
+    (error as any).statusCode = 409;
+    throw error;
+  }
+
 
   return await prisma.immunisation.create({
     data: {
       vaccineId,
       dueDate,
       childId,
-      administered: true
+      administered: true,
     },
   });
 };
